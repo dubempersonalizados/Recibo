@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Recibo | DUBEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul-marinho: #0f172a;
+            --laranja: #f97316;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #e2e8f0; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        .recibo-container { 
+            width: 760px; 
+            background: #fff; 
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            border-bottom: 5px solid var(--azul-marinho); 
+        }
+
+        .decoracao-topo {
+            height: 6px;
+            background: linear-gradient(90deg, var(--azul-marinho) 0%, var(--laranja) 100%);
+        }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: var(--azul-marinho);
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 90px; height: auto; }
+        .empresa-info h1 { margin: 0; font-size: 20px; font-weight: 800; color: #fff; }
+        .empresa-info p { margin: 2px 0; font-size: 11px; color: #94a3b8; }
+        
+        .caixa-r { 
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--laranja);
+            padding: 10px 15px; 
+            border-radius: 8px;
+            display: inline-flex; 
+            align-items: center; 
+        }
+
+        .caixa-r span { font-size: 16px; font-weight: bold; color: var(--laranja); margin-right: 5px; }
+        .caixa-r input { 
+            border: none; background: transparent; font-size: 22px; 
+            font-weight: 800; width: 140px; outline: none; text-align: right; color: white;
+        }
+
+        .corpo { padding: 25px 35px; }
+        .campo-grupo { margin-bottom: 20px; display: flex; flex-direction: column; }
+
+        .label { 
+            font-weight: 700; font-size: 10px; text-transform: uppercase; 
+            color: var(--laranja); margin-bottom: 5px; letter-spacing: 1px;
+        }
+
+        .linha-preencher { 
+            border-bottom: 2px solid #f1f5f9; padding: 5px 0; outline: none; 
+            font-size: 16px; color: #1e293b; font-weight: 500;
+        }
+
+        #extenso-output { color: #64748b; font-style: italic; font-size: 14px; }
+
+        .footer { 
+            padding: 40px 35px 25px 35px; /* Aumentado padding superior para dar espaço à caneta */
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+        }
+
+        .assinatura-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 320px;
+        }
+
+        .assinatura-area { 
+            text-align: center; 
+            width: 100%; 
+            border-top: 2px solid var(--azul-marinho); 
+            padding-top: 8px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            color: var(--azul-marinho);
+            text-transform: uppercase;
+        }
+
+        .agradecimento {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--laranja);
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .data-area input { 
+            border: 1px solid #e2e8f0; border-radius: 6px;
+            font-size: 14px; padding: 6px; font-family: inherit;
+        }
+
+        .acoes { margin-top: 20px; display: flex; gap: 10px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; transition: 0.3s; }
+        .btn-imprimir { background: var(--azul-marinho); color: white; }
+        .btn-limpar { background: #fff; color: #ef4444; border: 1px solid #ef4444; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .acoes { display: none; }
+            .recibo-container { 
+                box-shadow: none; 
+                border: 1px solid #eee; 
+                border-bottom: 5px solid var(--azul-marinho) !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .header { background: var(--azul-marinho) !important; -webkit-print-color-adjust: exact; }
+            .caixa-r input { color: white !important; }
+            .agradecimento { color: #f97316 !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="recibo-container">
+    <div class="decoracao-topo"></div>
+    <div class="header">
+        <div class="logo-area">
+            <img src="https://iili.io/KKfn7x1.png" alt="Logo DUBEM" class="logo-img">
+            <div class="empresa-info">
+                
+                <p>Produtos Personalizados | CNPJ: 18.917.840/0001-89</p>
+                <p>Rua Dom Aureliano Matos, 1897, Centro - Itapajé/Ce</p>
+                <p>Fone: 85 9280-4012</p>
+            </div>
+        </div>
+        <div class="valor-destaque">
+            <div class="caixa-r">
+                <span>R$</span>
+                <input type="text" id="valorNum" placeholder="0,00" onfocus="this.select()" onblur="formatarMoeda(this)">
+            </div>
+        </div>
+    </div>
+
+    <div class="corpo">
+        <div class="campo-grupo">
+            <span class="label">Recebemos de</span>
+            <div id="campoCliente" class="linha-preencher" contenteditable="true" onfocus="selecionarTudo(this)">Nome do Cliente</div>
+        </div>
+        <div class="campo-grupo">
+            <span class="label">A quantia de</span>
+            <div id="extenso-output" class="linha-preencher">---</div>
+        </div>
+        <div class="campo-grupo">
+            <span class="label">Referente a</span>
+            <div id="campoRef" class="linha-preencher" contenteditable="true" onfocus="selecionarTudo(this)">Descrição do pedido</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="data-area">
+            <span class="label">Local e Data</span><br>
+            Itapajé/Ce, <input type="date" id="dataAtual">
+        </div>
+        
+        <div class="assinatura-box">
+            <div class="assinatura-area">DUBEM - PRODUTOS PERSONALIZADOS</div>
+            <div class="agradecimento">Agradecemos a preferência!</div>
+        </div>
+    </div>
+</div>
+
+<div class="acoes">
+    <button class="btn btn-limpar" onclick="limparRecibo()">Limpar</button>
+    <button class="btn btn-imprimir" onclick="window.print()">Imprimir</button>
+</div>
+
+<script>
+    function selecionarTudo(elemento) { setTimeout(() => document.execCommand('selectAll', false, null), 0); }
+
+    function formatarMoeda(input) {
+        let valor = input.value.replace(',', '.');
+        if (valor === "" || isNaN(valor)) return;
+        let num = parseFloat(valor);
+        input.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        atualizarExtenso(num);
+    }
+
+    function limparRecibo() {
+        if(confirm("Deseja limpar as informações?")) {
+            document.getElementById('valorNum').value = "";
+            document.getElementById('extenso-output').innerText = "---";
+            document.getElementById('campoCliente').innerText = "Nome do Cliente";
+            document.getElementById('campoRef').innerText = "Descrição do pedido";
+            document.getElementById('dataAtual').valueAsDate = new Date();
+        }
+    }
+
+    document.getElementById('valorNum').addEventListener('input', function(e) {
+        let valorRaw = this.value.replace(',', '.');
+        let num = parseFloat(valorRaw);
+        if (!isNaN(num)) atualizarExtenso(num);
+    });
+
+    function atualizarExtenso(num) {
+        document.getElementById('extenso-output').innerText = "(" + numeroParaExtenso(num) + ")";
+    }
+
+    function numeroParaExtenso(valor) {
+        const unidades = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"];
+        const dezena1 = ["dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
+        const dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
+        const centenas = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
+
+        function converter(n) {
+            if (n === 0) return "";
+            if (n === 100) return "cem";
+            let res = "";
+            if (n > 99) { res += centenas[Math.floor(n / 100)]; n %= 100; if (n > 0) res += " e "; }
+            if (n > 19) { res += dezenas[Math.floor(n / 10)]; n %= 10; if (n > 0) res += " e "; }
+            else if (n > 9) { res += dezena1[n - 10]; n = 0; }
+            if (n > 0) res += unidades[n];
+            return res;
+        }
+
+        let partes = valor.toFixed(2).split(".");
+        let reais = parseInt(partes[0]);
+        let centavos = parseInt(partes[1]);
+        let textoReais = "";
+        if (reais > 0) {
+            if (reais > 999) {
+                let milhar = Math.floor(reais / 1000); let resto = reais % 1000;
+                textoReais = (milhar === 1 ? "mil" : converter(milhar) + " mil") + (resto > 0 ? " e " + converter(resto) : "");
+            } else { textoReais = converter(reais); }
+            textoReais += (reais === 1 ? " real" : " reais");
+        }
+        let textoCentavos = "";
+        if (centavos > 0) { textoCentavos = converter(centavos) + (centavos === 1 ? " centavo" : " centavos"); }
+        if (reais > 0 && centavos > 0) return textoReais + " e " + textoCentavos;
+        if (reais > 0) return textoReais;
+        if (centavos > 0) return textoCentavos;
+        return "zero reais";
+    }
+
+    document.getElementById('dataAtual').valueAsDate = new Date();
+</script>
+
+</body>
+</html>
