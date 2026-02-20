@@ -64,7 +64,18 @@
             font-weight: 800; width: 140px; outline: none; text-align: right; color: white;
         }
 
-        .corpo { padding: 25px 35px; }
+        /* Título do Documento */
+        .titulo-documento {
+            text-align: center;
+            padding: 15px 0 0 0;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--azul-marinho);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .corpo { padding: 15px 35px 25px 35px; }
         .campo-grupo { margin-bottom: 20px; display: flex; flex-direction: column; }
 
         .label { 
@@ -80,7 +91,7 @@
         #extenso-output { color: #64748b; font-style: italic; font-size: 14px; }
 
         .footer { 
-            padding: 40px 35px 25px 35px; /* Aumentado padding superior para dar espaço à caneta */
+            padding: 30px 35px 25px 35px;
             display: flex; 
             justify-content: space-between; 
             align-items: flex-end; 
@@ -145,7 +156,7 @@
         <div class="logo-area">
             <img src="https://iili.io/KKfn7x1.png" alt="Logo DUBEM" class="logo-img">
             <div class="empresa-info">
-                
+                <h1>DUBEM</h1>
                 <p>Produtos Personalizados | CNPJ: 18.917.840/0001-89</p>
                 <p>Rua Dom Aureliano Matos, 1897, Centro - Itapajé/Ce</p>
                 <p>Fone: 85 9280-4012</p>
@@ -158,6 +169,8 @@
             </div>
         </div>
     </div>
+
+    <div class="titulo-documento">RECIBO</div>
 
     <div class="corpo">
         <div class="campo-grupo">
