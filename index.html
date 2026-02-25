@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Recibo | DUBEM</title>
+    <title id="page-title">Recibo | DUBEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -64,7 +64,6 @@
             font-weight: 800; width: 140px; outline: none; text-align: right; color: white;
         }
 
-        /* Título do Documento */
         .titulo-documento {
             text-align: center;
             padding: 15px 0 0 0;
@@ -75,8 +74,8 @@
             text-transform: uppercase;
         }
 
-        .corpo { padding: 15px 35px 25px 35px; }
-        .campo-grupo { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .corpo { padding: 15px 35px 15px 35px; }
+        .campo-grupo { margin-bottom: 18px; display: flex; flex-direction: column; }
 
         .label { 
             font-weight: 700; font-size: 10px; text-transform: uppercase; 
@@ -91,7 +90,7 @@
         #extenso-output { color: #64748b; font-style: italic; font-size: 14px; }
 
         .footer { 
-            padding: 30px 35px 25px 35px;
+            padding: 10px 35px 25px 35px;
             display: flex; 
             justify-content: space-between; 
             align-items: flex-end; 
@@ -104,15 +103,22 @@
             width: 320px;
         }
 
+        .img-assinatura {
+            width: 130px; 
+            height: auto;
+            margin-bottom: -8px; 
+            opacity: 0.9;
+        }
+
         .assinatura-area { 
             text-align: center; 
             width: 100%; 
-            border-top: 2px solid var(--azul-marinho); 
-            padding-top: 8px; 
+            padding-top: 5px; 
             font-weight: 700; 
             font-size: 11px; 
             color: var(--azul-marinho);
             text-transform: uppercase;
+            border-top: 1px solid #e2e8f0;
         }
 
         .agradecimento {
@@ -193,6 +199,7 @@
         </div>
         
         <div class="assinatura-box">
+            <img src="https://iili.io/qfK8yJa.png" alt="Assinatura DUBEM" class="img-assinatura">
             <div class="assinatura-area">DUBEM - PRODUTOS PERSONALIZADOS</div>
             <div class="agradecimento">Agradecemos a preferência!</div>
         </div>
@@ -201,7 +208,7 @@
 
 <div class="acoes">
     <button class="btn btn-limpar" onclick="limparRecibo()">Limpar</button>
-    <button class="btn btn-imprimir" onclick="window.print()">Imprimir</button>
+    <button class="btn btn-imprimir" onclick="prepararImpressao()">Imprimir / Salvar PDF</button>
 </div>
 
 <script>
@@ -213,6 +220,27 @@
         let num = parseFloat(valor);
         input.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         atualizarExtenso(num);
+    }
+
+    // NOVA FUNÇÃO: Muda o título da página para salvar o PDF com o nome correto
+    function prepararImpressao() {
+        const nomeCliente = document.getElementById('campoCliente').innerText.trim();
+        const tituloOriginal = document.title;
+        
+        // Define o novo título (nome do arquivo)
+        if (nomeCliente && nomeCliente !== "Nome do Cliente") {
+            document.title = "Recibo_" + nomeCliente;
+        } else {
+            document.title = "Recibo_DUBEM";
+        }
+
+        // Abre a janela de impressão
+        window.print();
+
+        // Volta o título original após a janela de impressão fechar
+        setTimeout(() => {
+            document.title = tituloOriginal;
+        }, 1000);
     }
 
     function limparRecibo() {
@@ -276,4 +304,3 @@
 
 </body>
 </html>
-
