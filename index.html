@@ -2,8 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Recibo | DUBEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --azul-marinho: #0f172a;
@@ -21,7 +23,8 @@
         }
         
         .recibo-container { 
-            width: 760px; 
+            width: 100%;
+            max-width: 760px; 
             background: #fff; 
             border-radius: 12px;
             overflow: hidden;
@@ -87,20 +90,31 @@
             font-size: 16px; color: #1e293b; font-weight: 500;
         }
 
+        .input-linha {
+            border: none; border-bottom: 2px solid #f1f5f9; background: transparent;
+            width: 100%; box-sizing: border-box; font-family: inherit;
+            font-size: 16px; color: #1e293b; font-weight: 500; padding: 5px 0;
+        }
+        .input-linha:focus { outline: none; border-bottom-color: var(--laranja); }
+        .input-linha::placeholder { color: #94a3b8; font-weight: 400; }
+
         #extenso-output { color: #64748b; font-style: italic; font-size: 14px; }
 
         .footer { 
-            padding: 10px 35px 25px 35px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end; 
+            border-top: 1px solid #e2e8f0;
+            padding: 18px 35px 25px 35px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            gap: 10px;
         }
 
+        .footer-col { display: flex; flex-direction: column; }
+
+        .data-area { align-items: flex-start; justify-self: start; }
+
         .assinatura-box {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            width: 320px;
         }
 
         .img-assinatura {
@@ -130,19 +144,50 @@
             margin-top: 4px;
         }
 
-        .data-area input { 
-            border: 1px solid #e2e8f0; border-radius: 6px;
-            font-size: 14px; padding: 6px; font-family: inherit;
+        .qr-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        #qrcode {
+            display: flex; justify-content: center;
+            padding: 7px; background: #fff;
+        }
+        #qrcode img, #qrcode canvas { display: block; }
+
+        .data-area { white-space: nowrap; }
+        .data-texto {
+            position: relative; display: inline-block;
+            font-size: 15px; font-weight: 600; color: #1e293b;
+            border-bottom: 2px solid #f1f5f9; padding-bottom: 4px;
+        }
+        .data-texto input[type="date"] {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            opacity: 0; border: none; padding: 0; margin: 0; cursor: pointer;
         }
 
-        .acoes { margin-top: 20px; display: flex; gap: 10px; }
+        .acoes { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; transition: 0.3s; }
         .btn-imprimir { background: var(--azul-marinho); color: white; }
         .btn-limpar { background: #fff; color: #ef4444; border: 1px solid #ef4444; }
 
+        @media (max-width: 640px) {
+            body { padding: 10px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; padding: 15px; }
+            .corpo { padding: 15px; }
+            .footer { grid-template-columns: 1fr; justify-items: center; gap: 22px; padding: 18px 15px 22px; }
+            .data-area { justify-self: center; text-align: center; }
+            .titulo-documento { letter-spacing: 2px; font-size: 18px; }
+            .logo-img { width: 70px; }
+            .caixa-r input { width: 120px; font-size: 18px; }
+        }
+
         @media print {
             body { background: white; padding: 0; }
             .acoes { display: none; }
+            #qrcode { padding: 5px; }
+            #qrcode img, #qrcode canvas { width: 72px !important; height: 72px !important; }
             .recibo-container { 
                 box-shadow: none; 
                 border: 1px solid #eee; 
@@ -184,6 +229,10 @@
             <div id="campoCliente" class="linha-preencher" contenteditable="true" onfocus="selecionarTudo(this)">Nome do Cliente</div>
         </div>
         <div class="campo-grupo">
+            <span class="label">CPF / CNPJ</span>
+            <input type="text" id="campoDoc" class="input-linha" placeholder="CPF ou CNPJ do cliente" inputmode="numeric">
+        </div>
+        <div class="campo-grupo">
             <span class="label">A quantia de</span>
             <div id="extenso-output" class="linha-preencher">---</div>
         </div>
@@ -194,12 +243,21 @@
     </div>
 
     <div class="footer">
-        <div class="data-area">
-            <span class="label">Local e Data</span><br>
-            Itapajé/Ce, <input type="date" id="dataAtual">
+        <div class="data-area footer-col">
+            <span class="label">Local e Data</span>
+            <div class="data-texto">
+                <span id="dataExtenso">Itapajé/Ce</span>
+                <input type="date" id="dataAtual">
+            </div>
+        </div>
+
+        <div class="qr-area footer-col">
+            <span class="label">Validação</span>
+            <div id="qrcode"></div>
         </div>
         
-        <div class="assinatura-box">
+        <div class="assinatura-box footer-col">
+            <span class="label">Emitido por</span>
             <img src="https://iili.io/nO7pKcx.png" alt="Assinatura DUBEM" class="img-assinatura">
             <div class="assinatura-area">DUBEM - PRODUTOS PERSONALIZADOS</div>
             <div class="agradecimento">Agradecemos a preferência!</div>
@@ -223,25 +281,95 @@
         atualizarExtenso(num);
     }
 
-    // NOVA FUNÇÃO: Muda o título da página para salvar o PDF com o nome correto
     function prepararImpressao() {
         const nomeCliente = document.getElementById('campoCliente').innerText.trim();
         const tituloOriginal = document.title;
         
-        // Define o novo título (nome do arquivo)
         if (nomeCliente && nomeCliente !== "Nome do Cliente") {
             document.title = "Recibo_" + nomeCliente;
         } else {
             document.title = "Recibo_DUBEM";
         }
 
-        // Abre a janela de impressão
         window.print();
 
-        // Volta o título original após a janela de impressão fechar
         setTimeout(() => {
             document.title = tituloOriginal;
         }, 1000);
+    }
+
+    function formatarDocumento(valor) {
+        let d = valor.replace(/\D/g, '').slice(0, 14);
+        if (d.length === 0) return '';
+        if (d.length <= 11) {
+            let out = d.slice(0, 3);
+            if (d.length > 3) out += '.' + d.slice(3, 6);
+            if (d.length > 6) out += '.' + d.slice(6, 9);
+            if (d.length > 9) out += '-' + d.slice(9, 11);
+            return out;
+        }
+        let out = d.slice(0, 2) + '.' + d.slice(2, 5) + '.' + d.slice(5, 8) + '/' + d.slice(8, 12);
+        if (d.length > 12) out += '-' + d.slice(12, 14);
+        return out;
+    }
+
+    let qrInstance = null;
+    let qrTimer = null;
+
+    function dataParaTexto(v) {
+        if (!v) return '';
+        const partes = v.split('-');
+        if (partes.length !== 3) return '';
+        return partes[2] + '/' + partes[1] + '/' + partes[0];
+    }
+
+    const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                   'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+    function dataPorExtenso(v) {
+        if (!v) return 'Itapajé/Ce';
+        const partes = v.split('-');
+        if (partes.length !== 3) return 'Itapajé/Ce';
+        const dia = parseInt(partes[2], 10);
+        const mes = parseInt(partes[1], 10);
+        const ano = partes[0];
+        if (isNaN(dia) || isNaN(mes)) return 'Itapajé/Ce';
+        return 'Itapajé/Ce, ' + dia + ' de ' + MESES[mes - 1] + ' de ' + ano;
+    }
+
+    function atualizarDataExtenso() {
+        document.getElementById('dataExtenso').innerText =
+            dataPorExtenso(document.getElementById('dataAtual').value);
+        agendarQR();
+    }
+
+    function semAcento(texto) {
+        return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function montarTextoQR() {
+        const nome = document.getElementById('campoCliente').innerText.trim();
+        const doc = document.getElementById('campoDoc').value.trim();
+        const valor = document.getElementById('valorNum').value.trim();
+        const ref = document.getElementById('campoRef').innerText.trim();
+        const data = dataParaTexto(document.getElementById('dataAtual').value);
+        let partes = ['RECIBO DUBEM'];
+        if (nome && nome !== 'Nome do Cliente') partes.push('Cliente: ' + nome);
+        if (doc) partes.push('CPF/CNPJ: ' + doc);
+        if (valor) partes.push('Valor: R$ ' + valor);
+        if (ref && ref !== 'Descrição do pedido') partes.push('Ref: ' + ref);
+        if (data) partes.push('Data: ' + data);
+        return semAcento(partes.join(' | '));
+    }
+
+    function atualizarQR() {
+        if (!qrInstance) return;
+        try { qrInstance.makeCode(montarTextoQR()); } catch (e) {}
+    }
+
+    function agendarQR() {
+        clearTimeout(qrTimer);
+        qrTimer = setTimeout(atualizarQR, 200);
     }
 
     function limparRecibo() {
@@ -249,8 +377,10 @@
             document.getElementById('valorNum').value = "";
             document.getElementById('extenso-output').innerText = "---";
             document.getElementById('campoCliente').innerText = "Nome do Cliente";
+            document.getElementById('campoDoc').value = "";
             document.getElementById('campoRef').innerText = "Descrição do pedido";
             document.getElementById('dataAtual').valueAsDate = new Date();
+            atualizarDataExtenso();
         }
     }
 
@@ -259,10 +389,11 @@
         if (digitos === "") {
             this.value = "";
             document.getElementById('extenso-output').innerText = "---";
+            agendarQR();
             return;
         }
         digitos = digitos.replace(/^0+(?=\d)/, '');
-        if (digitos.length > 12) digitos = digitos.slice(0, 12);
+        if (digitos.length > 9) digitos = digitos.slice(0, 9);
         let num = parseInt(digitos, 10) / 100;
         let formatado = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         let distFim = this.value.length - this.selectionStart;
@@ -270,7 +401,21 @@
         let pos = Math.max(0, formatado.length - distFim);
         this.setSelectionRange(pos, pos);
         atualizarExtenso(num);
+        agendarQR();
     });
+
+    document.getElementById('campoDoc').addEventListener('input', function() {
+        let formatado = formatarDocumento(this.value);
+        let distFim = this.value.length - this.selectionStart;
+        this.value = formatado;
+        let pos = Math.max(0, formatado.length - distFim);
+        this.setSelectionRange(pos, pos);
+        agendarQR();
+    });
+
+    document.getElementById('campoCliente').addEventListener('input', agendarQR);
+    document.getElementById('campoRef').addEventListener('input', agendarQR);
+    document.getElementById('dataAtual').addEventListener('change', atualizarDataExtenso);
 
     function atualizarExtenso(num) {
         document.getElementById('extenso-output').innerText = "(" + numeroParaExtenso(num) + ")";
@@ -312,7 +457,19 @@
         return "zero reais";
     }
 
+    try {
+        qrInstance = new QRCode(document.getElementById('qrcode'), {
+            width: 112,
+            height: 112,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        atualizarQR();
+    } catch (e) {}
+
     document.getElementById('dataAtual').valueAsDate = new Date();
+    atualizarDataExtenso();
 </script>
 
 </body>
