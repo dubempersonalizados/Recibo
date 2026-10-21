@@ -107,7 +107,8 @@
             width: 130px; 
             height: auto;
             margin-bottom: -8px; 
-            opacity: 0.9;
+            opacity: 0.95;
+            filter: grayscale(1) sepia(1) hue-rotate(190deg) saturate(4) brightness(0.6) contrast(1.1);
         }
 
         .assinatura-area { 
@@ -170,7 +171,7 @@
         <div class="valor-destaque">
             <div class="caixa-r">
                 <span>R$</span>
-                <input type="text" id="valorNum" placeholder="0,00" onfocus="this.select()" onblur="formatarMoeda(this)">
+                <input type="text" id="valorNum" placeholder="0,00" inputmode="numeric" onfocus="this.select()" onblur="formatarMoeda(this)">
             </div>
         </div>
     </div>
@@ -199,7 +200,7 @@
         </div>
         
         <div class="assinatura-box">
-            <img src="https://iili.io/qfK8yJa.png" alt="Assinatura DUBEM" class="img-assinatura">
+            <img src="https://iili.io/nO7pKcx.png" alt="Assinatura DUBEM" class="img-assinatura">
             <div class="assinatura-area">DUBEM - PRODUTOS PERSONALIZADOS</div>
             <div class="agradecimento">Agradecemos a preferência!</div>
         </div>
@@ -215,9 +216,9 @@
     function selecionarTudo(elemento) { setTimeout(() => document.execCommand('selectAll', false, null), 0); }
 
     function formatarMoeda(input) {
-        let valor = input.value.replace(',', '.');
-        if (valor === "" || isNaN(valor)) return;
-        let num = parseFloat(valor);
+        let digitos = input.value.replace(/\D/g, '');
+        if (digitos === "") { input.value = ""; return; }
+        let num = parseInt(digitos, 10) / 100;
         input.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         atualizarExtenso(num);
     }
@@ -253,10 +254,22 @@
         }
     }
 
-    document.getElementById('valorNum').addEventListener('input', function(e) {
-        let valorRaw = this.value.replace(',', '.');
-        let num = parseFloat(valorRaw);
-        if (!isNaN(num)) atualizarExtenso(num);
+    document.getElementById('valorNum').addEventListener('input', function() {
+        let digitos = this.value.replace(/\D/g, '');
+        if (digitos === "") {
+            this.value = "";
+            document.getElementById('extenso-output').innerText = "---";
+            return;
+        }
+        digitos = digitos.replace(/^0+(?=\d)/, '');
+        if (digitos.length > 12) digitos = digitos.slice(0, 12);
+        let num = parseInt(digitos, 10) / 100;
+        let formatado = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let distFim = this.value.length - this.selectionStart;
+        this.value = formatado;
+        let pos = Math.max(0, formatado.length - distFim);
+        this.setSelectionRange(pos, pos);
+        atualizarExtenso(num);
     });
 
     function atualizarExtenso(num) {
